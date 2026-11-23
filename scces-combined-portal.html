@@ -1,0 +1,3508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCCES | Student Council Election Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            portalBg: '#090314',
+            cardBg: 'rgba(26, 11, 46, 0.78)',
+            cardBorder: '#4c268a',
+            neonPurple: '#a855f7',
+            neonViolet: '#8b5cf6',
+            accentPink: '#ec4899'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --bg-base: #090314;
+      --bg-surface: rgba(24, 10, 44, 0.84);
+      --bg-elevated: rgba(38, 17, 68, 0.92);
+      --border-subtle: rgba(168, 85, 247, 0.25);
+      --border-active: rgba(192, 132, 252, 0.65);
+      --text-main: #f8fafc;
+      --text-muted: #b7a8d4;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 15%, rgba(139, 92, 246, 0.22), transparent 36%),
+        radial-gradient(circle at 88% 12%, rgba(236, 72, 153, 0.16), transparent 34%),
+        radial-gradient(circle at 50% 90%, rgba(88, 28, 135, 0.28), transparent 45%),
+        var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    }
+
+    .glass-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 40px rgba(3, 1, 10, 0.45);
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 265px;
+      flex-shrink: 0;
+      background: rgba(15, 6, 29, 0.95);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px 16px;
+      transition: transform 0.25s ease, width 0.25s ease;
+      z-index: 40;
+    }
+
+    @media (max-width: 960px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+    }
+
+    .sidebar-brand {
+      text-align: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+    }
+
+    .brand-crest {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 10px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #7e22ce, #ec4899);
+      font-size: 1.35rem;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(147, 51, 234, 0.4);
+    }
+
+    .sidebar-brand h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-brand p {
+      margin: 4px 0 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(139, 92, 246, 0.14);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(126, 34, 206, 0.42), rgba(236, 72, 153, 0.18));
+      border-color: var(--border-active);
+      color: #fff;
+    }
+
+    .logout-item {
+      color: #fda4af;
+    }
+
+    .logout-item:hover {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fecdd3;
+    }
+
+    .sidebar-tagline {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .sidebar-tagline p {
+      margin: 0 0 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #e9d5ff;
+    }
+
+    .tagline-bar {
+      display: block;
+      height: 4px;
+      width: 56px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #a855f7, #ec4899);
+    }
+
+    .main-wrapper {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(13, 5, 26, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-left h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(139, 92, 246, 0.12);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-active);
+      background: rgba(139, 92, 246, 0.24);
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ec4899;
+    }
+
+    .notif-dropdown {
+      position: absolute;
+      top: 48px;
+      right: 0;
+      width: 300px;
+      background: #1b0b34;
+      border: 1px solid var(--border-active);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .notif-header {
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(139, 92, 246, 0.16);
+    }
+
+    .notif-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.12);
+      font-size: 0.8rem;
+    }
+
+    .notif-item:last-child {
+      border-bottom: none;
+    }
+
+    .notif-item strong {
+      display: block;
+      color: #f3e8ff;
+      margin-bottom: 2px;
+    }
+
+    .notif-item p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 12px 5px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(139, 92, 246, 0.14);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .user-avatar-sm {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .user-name-sm {
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .content-area {
+      padding: 24px;
+      max-width: 1380px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .welcome-banner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 22px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      background: linear-gradient(120deg, rgba(107, 33, 168, 0.42), rgba(30, 12, 58, 0.88));
+      color: #fff;
+      text-align: left;
+    }
+
+    .clickable-banner {
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .clickable-banner:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-active);
+    }
+
+    .mascot-badge {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: grid;
+      place-items: center;
+      font-size: 1.7rem;
+      color: #f5d0fe;
+    }
+
+    .welcome-text {
+      flex: 1;
+    }
+
+    .welcome-text h2 {
+      margin: 0 0 4px;
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    .welcome-text p {
+      margin: 0 0 6px;
+      color: #e9d5ff;
+      font-size: 0.9rem;
+    }
+
+    .welcome-em {
+      font-size: 0.8rem;
+      color: #f9a8d4;
+      font-weight: 600;
+    }
+
+    .banner-arrow,
+    .card-arrow {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .countdown-card {
+      padding: 20px;
+      border-radius: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .countdown-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .cal-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(139, 92, 246, 0.2);
+      color: #d8b4fe;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .countdown-top h3 {
+      margin: 6px 0 2px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .deadline-text {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .status-pill,
+    .status-pill-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(34, 197, 94, 0.16);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .status-pill.closed,
+    .status-pill-sm.closed {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .green-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .timer-boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .time-box {
+      background: rgba(12, 4, 24, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    .time-box strong {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .time-box span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .metrics-strip-2,
+    .metrics-strip-3 {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .metrics-strip-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .metrics-strip-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 820px) {
+      .metrics-strip-2,
+      .metrics-strip-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-card {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      text-align: left;
+    }
+
+    .clickable-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .clickable-card:hover {
+      border-color: var(--border-active);
+      transform: translateY(-2px);
+    }
+
+    .metric-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: rgba(139, 92, 246, 0.2);
+      color: #d8b4fe;
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .metric-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .metric-text strong {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .card-hint {
+      display: block;
+      font-size: 0.72rem;
+      color: #c4b5fd;
+      margin-top: 2px;
+    }
+
+    .metrics-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 1080px) {
+      .metrics-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .metrics-grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.purple {
+      background: rgba(139, 92, 246, 0.2);
+      color: #d8b4fe;
+    }
+
+    .stat-info {
+      flex: 1;
+    }
+
+    .stat-info span {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .stat-info p {
+      margin: 2px 0 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .stat-trend {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(139, 92, 246, 0.18);
+      color: #e9d5ff;
+    }
+
+    .dashboard-bottom-grid,
+    .dashboard-mid-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-bottom-grid,
+      .dashboard-mid-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .text-purple {
+      color: #c084fc;
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .candidate-card {
+      background: rgba(15, 6, 29, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .candidate-card:hover {
+      border-color: var(--border-active);
+      transform: translateY(-2px);
+    }
+
+    .cand-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cand-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #7e22ce, #ec4899);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .cand-name {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .cand-party {
+      font-size: 0.76rem;
+      color: #d8b4fe;
+    }
+
+    .cand-platform {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .section-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .section-banner h2 {
+      margin: 0 0 4px;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .section-banner p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .banner-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .select-control {
+      background: rgba(15, 6, 29, 0.9);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 11px;
+      font-size: 0.85rem;
+    }
+
+    .btn-purple-solid {
+      background: linear-gradient(90deg, #7e22ce, #a855f7);
+      color: #fff;
+      border: none;
+      padding: 9px 15px;
+      border-radius: 11px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+    }
+
+    .btn-purple-solid:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-pill-outline {
+      background: rgba(139, 92, 246, 0.14);
+      color: #f3e8ff;
+      border: 1px solid var(--border-subtle);
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-pill-outline:hover {
+      border-color: var(--border-active);
+    }
+
+    .btn-glass-xs {
+      background: rgba(139, 92, 246, 0.2);
+      color: #f3e8ff;
+      border: 1px solid var(--border-subtle);
+      padding: 4px 9px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-outline-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 9px 14px;
+      border-radius: 11px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .positions-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .position-group {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .position-group-header {
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .position-group-header h3 {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    .position-group-header span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .result-chart-layout {
+      display: grid;
+      grid-template-columns: minmax(190px, 260px) 1fr;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .pie-chart-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .pie-chart {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      max-width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 14px 28px rgba(3, 1, 10, 0.28);
+    }
+
+    .pie-chart-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-shadow: 0 2px 6px rgba(20, 5, 35, 0.75);
+      pointer-events: none;
+    }
+
+    .result-legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 16px;
+      margin-top: 16px;
+    }
+
+    .result-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-size: 0.82rem;
+      color: var(--text-main);
+    }
+
+    .result-legend-swatch {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      border-radius: 6px;
+    }
+
+    .result-legend-name {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .overall-result-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .overall-result-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .overall-result-layout .pie-chart {
+      width: 280px;
+      height: 280px;
+    }
+
+    .overall-result-layout .pie-chart-label {
+      font-size: 1.05rem;
+    }
+
+    .overall-result-layout .result-legend {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 0;
+    }
+
+    .overall-total {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .overall-total-card {
+      border: 1px solid var(--border-subtle);
+      background: rgba(139, 92, 246, 0.12);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .overall-total-card span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-bottom: 3px;
+    }
+
+    .overall-total-card strong {
+      font-size: 1.35rem;
+    }
+
+    @media (max-width: 680px) {
+      .overall-result-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .overall-result-layout .pie-chart {
+        width: 220px;
+        height: 220px;
+      }
+
+      .result-chart-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .pie-chart {
+        width: 190px;
+        height: 190px;
+      }
+
+      .result-legend {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .candidates-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+
+    .ballot-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 6, 29, 0.82);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ballot-option.selected {
+      border-color: #c084fc;
+      background: rgba(126, 34, 206, 0.26);
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .badge-status.voted {
+      background: rgba(34, 197, 94, 0.16);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .badge-status.pending {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fde047;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+    }
+
+    .data-table th {
+      color: #d8b4fe;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(15, 6, 29, 0.9);
+      overflow: hidden;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      border-radius: 999px;
+    }
+
+    .security-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .security-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(15, 6, 29, 0.75);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.86rem;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .control-row.no-border {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 1, 9, 0.78);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-box {
+      position: relative;
+      z-index: 75;
+      width: 100%;
+      max-width: 560px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: #17082e;
+      border: 1px solid var(--border-active);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(139, 92, 246, 0.16);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: #1d0b3a;
+      border: 1px solid #c084fc;
+      color: #fff;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast-box.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- AUTH GATE (STUDENT LOGIN / CREATE ACCOUNT ONLY; ADMIN USES DEDICATED CREDENTIALS IN SAME LOGIN) -->
+  <section id="auth-gate" class="min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-6">
+      <div class="flex items-center justify-center mb-5">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-700 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-900/50">
+          <i class="fa-solid fa-graduation-cap text-3xl text-white"></i>
+        </div>
+      </div>
+
+      <div class="flex rounded-xl bg-purple-950/60 p-1.5 border border-purple-800/40 mb-6">
+        <button type="button" id="studentLoginTab" class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-purple-700 text-white shadow cursor-pointer">
+          Portal Login
+        </button>
+        <button type="button" id="studentRegisterTab" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-purple-200 hover:text-white cursor-pointer">
+          Create Student Account
+        </button>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div class="space-y-1">
+          <label for="loginEmail" class="block text-xs font-semibold uppercase tracking-[0.18em] text-purple-300">Email Address</label>
+          <div class="relative">
+            <span class="absolute left-3 top-3 text-purple-300"><i class="fa-solid fa-envelope"></i></span>
+            <input id="loginEmail" type="email" required placeholder="student@school.edu" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-purple-300/50 focus:outline-none focus:border-purple-400" />
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label for="loginPassword" class="block text-xs font-semibold uppercase tracking-[0.18em] text-purple-300">Password</label>
+          <div class="relative">
+            <span class="absolute left-3 top-3 text-purple-300"><i class="fa-solid fa-lock"></i></span>
+            <input id="loginPassword" type="password" required placeholder="Enter password" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-purple-300/50 focus:outline-none focus:border-purple-400" />
+            <button type="button" id="toggleLoginPassBtn" aria-label="Toggle password visibility" class="absolute inset-y-0 right-0 px-3 text-purple-300 hover:text-white cursor-pointer">
+              <i class="fa-solid fa-eye-slash"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-700 to-pink-500 font-bold text-white shadow-lg hover:brightness-110 transition cursor-pointer">
+          Sign In
+        </button>
+      </form>
+
+      <form id="registerForm" class="hidden space-y-3.5">
+        <div class="space-y-1">
+          <label for="registerName" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Full Name</label>
+          <input id="registerName" type="text" required placeholder="Juan Dela Cruz" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="registerGender" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Gender</label>
+            <select id="registerGender" required class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white">
+              <option value="" disabled selected>Select</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label for="registerStudentId" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Student ID</label>
+            <input id="registerStudentId" type="text" required placeholder="2026-1042" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label for="registerDepartment" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Department / College</label>
+          <select id="registerDepartment" required class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white">
+            <option value="" disabled selected>Select department / college</option>
+            <option value="CICS">College of Information and Computing Studies (CICS)</option>
+            <option value="COE">College of Education (COE)</option>
+            <option value="COENG">College of Engineering (COENG)</option>
+            <option value="COM">College of Management (COM)</option>
+            <option value="CAS">College of Arts and Sciences (CAS)</option>
+            <option value="CIT">College of Industrial Technology (CIT)</option>
+            <option value="CHTM">College of Hospitality and Tourism Management (CHTM)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="registerCourse" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Course</label>
+            <select id="registerCourse" required disabled class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white">
+              <option value="">Select college first</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <label for="registerYearSection" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Year &amp; Section</label>
+            <select id="registerYearSection" required class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white">
+              <option value="" disabled selected>Select</option>
+              <option value="1A">1A</option><option value="1B">1B</option><option value="1C">1C</option><option value="1D">1D</option>
+              <option value="2A">2A</option><option value="2B">2B</option><option value="2C">2C</option>
+              <option value="3A">3A</option><option value="3B">3B</option><option value="3C">3C</option>
+              <option value="4A">4A</option><option value="4B">4B</option><option value="4C">4C</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="registerContactNumber" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Contact #</label>
+            <input id="registerContactNumber" type="tel" required pattern="09[0-9]{9}" maxlength="11" placeholder="09XXXXXXXXX" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+          <div class="space-y-1">
+            <label for="registerEmergencyNumber" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Emergency #</label>
+            <input id="registerEmergencyNumber" type="tel" required pattern="09[0-9]{9}" maxlength="11" placeholder="09XXXXXXXXX" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="registerBirthDate" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">BirthDate</label>
+            <input id="registerBirthDate" type="date" required class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+          <div class="space-y-1">
+            <label for="registerEmail" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Email</label>
+            <input id="registerEmail" type="email" required placeholder="student@email.com" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label for="registerAddress" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Address</label>
+          <input id="registerAddress" type="text" required placeholder="Enter your address" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="registerPassword" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Password</label>
+            <input id="registerPassword" type="password" required placeholder="Password" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+          <div class="space-y-1">
+            <label for="confirmPassword" class="block text-xs font-semibold uppercase tracking-[0.16em] text-purple-300">Confirm</label>
+            <input id="confirmPassword" type="password" required placeholder="Confirm" class="w-full bg-purple-950/50 border border-purple-500/40 rounded-xl py-2 px-3 text-sm text-white" />
+          </div>
+        </div>
+
+        <ul id="passwordRequirements" class="space-y-1 text-xs">
+          <li data-rule="length" class="text-purple-300/80"><i class="fa-solid fa-xmark mr-1.5"></i>Minimum 8 characters</li>
+          <li data-rule="lowercase" class="text-purple-300/80"><i class="fa-solid fa-xmark mr-1.5"></i>1 lowercase letter (a-z)</li>
+          <li data-rule="uppercase" class="text-purple-300/80"><i class="fa-solid fa-xmark mr-1.5"></i>1 uppercase letter (A-Z)</li>
+          <li data-rule="number" class="text-purple-300/80"><i class="fa-solid fa-xmark mr-1.5"></i>1 number</li>
+          <li data-rule="special" class="text-purple-300/80"><i class="fa-solid fa-xmark mr-1.5"></i>1 special character</li>
+        </ul>
+        <p id="passwordMismatchWarning" class="hidden text-xs text-rose-300">The password does not match.</p>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-700 to-violet-500 font-bold text-white shadow-lg hover:brightness-110 transition cursor-pointer">
+          Create Student Account
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- STUDENT PORTAL SHELL (NO ADMIN CONTROLS OR ADMIN LINKS RENDERED HERE) -->
+  <div id="student-portal-shell" class="app-shell hidden">
+    <aside class="sidebar" id="student-sidebar">
+      <div>
+        <div class="sidebar-brand">
+          <div class="brand-crest"><i class="fa-solid fa-box-archive"></i></div>
+          <h2>SCCES</h2>
+          <p>Student Council<br />Election System</p>
+        </div>
+        <nav class="sidebar-nav" aria-label="Student Navigation">
+          <button type="button" class="nav-item active" data-student-view="dashboard">
+            <i class="fa-solid fa-house"></i><span>Dashboard</span>
+          </button>
+          <button type="button" class="nav-item" data-student-view="candidates">
+            <i class="fa-solid fa-users"></i><span>Candidates</span>
+          </button>
+          <button type="button" class="nav-item" data-student-view="ballot">
+            <i class="fa-solid fa-check-to-slot"></i><span>Cast Vote</span>
+          </button>
+          <button type="button" class="nav-item" data-student-view="status">
+            <i class="fa-solid fa-circle-check"></i><span>Voting Status</span>
+          </button>
+          <button type="button" class="nav-item" data-student-view="results">
+            <i class="fa-solid fa-chart-column"></i><span>Election Results</span>
+          </button>
+          <button type="button" class="nav-item" data-student-view="profile">
+            <i class="fa-solid fa-user"></i><span>My Profile</span>
+          </button>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <button type="button" class="nav-item logout-item" data-action="logout">
+          <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+        </button>
+        <div class="sidebar-tagline">
+          <p>Your Vote.<br />Our Future.</p>
+          <span class="tagline-bar"></span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="icon-btn" data-toggle-sidebar="student-sidebar" aria-label="Toggle Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <h1>Online Student Council Election System</h1>
+            <span class="subtitle">Student Portal</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button type="button" class="user-chip" data-student-nav="profile" title="Open My Profile">
+            <div class="user-avatar-sm" id="student-avatar-chip">SL</div>
+            <span class="user-name-sm" id="student-name-chip">Sophia Lopez</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <section id="student-view-dashboard" class="view-section active">
+          <div class="hero-grid">
+            <button type="button" class="welcome-banner clickable-banner" id="banner-student-info">
+              <div class="mascot-badge"><i class="fa-solid fa-user-graduate"></i></div>
+              <div class="welcome-text">
+                <h2>Hello, <span id="student-welcome-name">Sophia</span>!</h2>
+                <p>Welcome to the Student Council Election System.</p>
+                <span class="welcome-em">Let's choose our future leaders together!</span>
+              </div>
+              <i class="fa-solid fa-chevron-right banner-arrow"></i>
+            </button>
+
+            <div class="countdown-card">
+              <div class="countdown-top">
+                <div class="cal-badge"><i class="fa-regular fa-calendar"></i></div>
+                <div>
+                  <span class="status-pill" id="student-poll-pill"><span class="green-dot"></span> Election Open</span>
+                  <h3 id="student-election-title">Student Council Election 2026</h3>
+                  <p class="deadline-text"><i class="fa-regular fa-clock"></i> Ends on: <span id="student-election-deadline">Nov 30, 2026 • 11:59 PM</span></p>
+                </div>
+              </div>
+              <div class="timer-boxes">
+                <div class="time-box"><strong id="scd-days">00</strong><span>Days</span></div>
+                <div class="time-box"><strong id="scd-hours">00</strong><span>Hours</span></div>
+                <div class="time-box"><strong id="scd-mins">00</strong><span>Minutes</span></div>
+                <div class="time-box"><strong id="scd-secs">00</strong><span>Seconds</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metrics-strip-2">
+            <button type="button" class="metric-card clickable-card" id="card-voting-status">
+              <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="metric-text">
+                <span class="metric-label">Voting Status</span>
+                <strong id="student-dash-status-label">Not Yet Voted</strong>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </button>
+            <button type="button" class="metric-card clickable-card" id="card-ballot-security">
+              <div class="metric-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="metric-text">
+                <span class="metric-label">Ballot Security</span>
+                <strong>Protected &amp; Verified</strong>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </button>
+          </div>
+
+          <div class="dashboard-bottom-grid">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-star text-purple"></i> Featured Candidates</h3>
+                <button type="button" class="btn-pill-outline" data-student-nav="candidates">
+                  View All <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div class="featured-grid" id="student-featured-grid"></div>
+            </div>
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-circle-check text-purple"></i> Your Voting Status</h3>
+              </div>
+              <div id="student-dash-status-box"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="student-view-candidates" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Candidates &amp; Platforms</h2>
+              <p>Review each candidate's coalition, credentials, and campaign agenda.</p>
+            </div>
+            <select id="student-position-filter" class="select-control" aria-label="Filter by Position">
+              <option value="all">All Positions</option>
+            </select>
+          </div>
+          <div id="student-all-candidates" class="positions-stack"></div>
+        </section>
+
+        <section id="student-view-ballot" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Official Student Ballot</h2>
+              <p>Select one candidate per position and submit your verified ballot.</p>
+            </div>
+            <div class="badge-status voted">
+              <i class="fa-solid fa-user-check mr-1"></i>
+              Voter: <strong id="ballot-voter-name">Sophia Lopez</strong>
+            </div>
+          </div>
+          <div id="student-ballot-container"></div>
+        </section>
+
+        <section id="student-view-status" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Your Voting Status &amp; Receipt</h2>
+              <p>Check your participation record and digital voting receipt.</p>
+            </div>
+          </div>
+          <div id="student-status-container" class="panel-card"></div>
+        </section>
+
+        <section id="student-view-results" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Live Election Results</h2>
+              <p>Real-time vote counts and percentage breakdown per office.</p>
+            </div>
+            <div class="badge-status voted">
+              Certified Ballots: <strong id="student-results-total">0</strong>
+            </div>
+          </div>
+          <div id="student-results-container" class="positions-stack"></div>
+        </section>
+
+        <section id="student-view-profile" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Student Voter Profile</h2>
+              <p>View or update your contact and personal details.</p>
+            </div>
+          </div>
+          <div id="student-profile-container" class="panel-card"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTROL PORTAL SHELL (ACCESSIBLE ONLY AFTER SIGNING IN WITH ADMIN CREDENTIALS) -->
+  <div id="admin-portal-shell" class="app-shell hidden">
+    <aside class="sidebar" id="admin-sidebar">
+      <div>
+        <div class="sidebar-brand">
+          <div class="brand-crest"><i class="fa-solid fa-box-archive"></i></div>
+          <h2>SCCES</h2>
+          <p>Student Council<br />Admin Portal</p>
+        </div>
+        <nav class="sidebar-nav" aria-label="Admin Navigation">
+          <button type="button" class="nav-item active" data-admin-view="dashboard">
+            <i class="fa-solid fa-house"></i><span>Dashboard</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="candidates">
+            <i class="fa-solid fa-users"></i><span>Candidates &amp; Platforms</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="positions">
+            <i class="fa-solid fa-list-check"></i><span>Positions</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="ballot">
+            <i class="fa-solid fa-check-to-slot"></i><span>Ballot &amp; Receipts</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="students">
+            <i class="fa-solid fa-user-group"></i><span>Voters &amp; Status</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="results">
+            <i class="fa-solid fa-chart-column"></i><span>Election Results</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="elections">
+            <i class="fa-regular fa-calendar-days"></i><span>Schedules &amp; Control</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="reports">
+            <i class="fa-solid fa-file-lines"></i><span>Reports &amp; Audit</span>
+          </button>
+          <button type="button" class="nav-item" data-admin-view="profile">
+            <i class="fa-solid fa-user-shield"></i><span>My Admin Profile</span>
+          </button>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <button type="button" class="nav-item logout-item" data-action="logout">
+          <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+        </button>
+        <div class="sidebar-tagline">
+          <p>Your Vote.<br />Our Future.</p>
+          <span class="tagline-bar"></span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="icon-btn" data-toggle-sidebar="admin-sidebar" aria-label="Toggle Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <h1>Online Student Council Election System</h1>
+            <span class="subtitle">Administrator Control Portal</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button type="button" class="icon-btn" id="admin-notif-btn" aria-label="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notif-dot"></span>
+          </button>
+          <div class="notif-dropdown hidden" id="admin-notif-dropdown">
+            <div class="notif-header">System Notifications</div>
+            <div class="notif-item">
+              <strong>Admin Control Mode Active</strong>
+              <p>Changes sync across candidates, ballots, schedules, and tallies.</p>
+            </div>
+            <div class="notif-item">
+              <strong>Student Portal Isolated</strong>
+              <p>Admin routes remain hidden from student sessions.</p>
+            </div>
+          </div>
+          <button type="button" class="user-chip" data-admin-nav="profile" title="Open Admin Profile">
+            <div class="user-avatar-sm">AD</div>
+            <span class="user-name-sm" id="admin-chip-name">Joanna Alcantara</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <section id="admin-view-dashboard" class="view-section active">
+          <div class="hero-grid">
+            <div class="welcome-banner">
+              <div class="mascot-badge"><i class="fa-solid fa-user-shield"></i></div>
+              <div class="welcome-text">
+                <h2>Hello, <span id="admin-welcome-name">Joanna</span>!</h2>
+                <p>Welcome to the Student Council Election Admin Portal.</p>
+                <span class="welcome-em">Manage candidates, ballots, schedules, and live results.</span>
+              </div>
+            </div>
+            <div class="countdown-card">
+              <div class="countdown-top">
+                <div class="cal-badge"><i class="fa-regular fa-calendar"></i></div>
+                <div class="flex-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="status-pill" id="admin-poll-pill"><span class="green-dot"></span> Election Open</span>
+                    <button type="button" class="btn-glass-xs" id="admin-quick-schedule-btn">
+                      <i class="fa-solid fa-pen"></i> Edit
+                    </button>
+                  </div>
+                  <h3 id="admin-election-title">Student Council Election 2026</h3>
+                  <p class="deadline-text"><i class="fa-regular fa-clock"></i> Ends on: <span id="admin-election-deadline">Nov 30, 2026 • 11:59 PM</span></p>
+                </div>
+              </div>
+              <div class="timer-boxes">
+                <div class="time-box"><strong id="acd-days">00</strong><span>Days</span></div>
+                <div class="time-box"><strong id="acd-hours">00</strong><span>Hours</span></div>
+                <div class="time-box"><strong id="acd-mins">00</strong><span>Minutes</span></div>
+                <div class="time-box"><strong id="acd-secs">00</strong><span>Seconds</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metrics-strip-3">
+            <button type="button" class="metric-card clickable-card" data-admin-nav="profile">
+              <div class="metric-icon"><i class="fa-solid fa-id-card-clip"></i></div>
+              <div class="metric-text">
+                <span class="metric-label">Administrator Account</span>
+                <strong id="admin-card-email">alcantarajoannacelyn@gmail.com</strong>
+                <small class="card-hint">Click to manage admin profile</small>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </button>
+            <button type="button" class="metric-card clickable-card" data-admin-nav="students">
+              <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="metric-text">
+                <span class="metric-label">Turnout &amp; Voting Status</span>
+                <strong id="admin-turnout-summary">0 / 0 Voted</strong>
+                <small class="card-hint">Click to view or update voter status</small>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </button>
+            <button type="button" class="metric-card clickable-card" data-admin-nav="elections">
+              <div class="metric-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="metric-text">
+                <span class="metric-label">Ballot Security &amp; Rules</span>
+                <strong id="admin-rules-summary">4 Active Rules</strong>
+                <small class="card-hint">Click to manage rules &amp; polls</small>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </button>
+          </div>
+
+          <div class="metrics-grid-4">
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="fa-solid fa-users"></i></div>
+              <div class="stat-info"><span id="kpi-students">0</span><p>Registered Voters</p></div>
+              <span class="stat-trend">Verified</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="fa-solid fa-trophy"></i></div>
+              <div class="stat-info"><span id="kpi-candidates">0</span><p>Total Candidates</p></div>
+              <span class="stat-trend" id="kpi-positions-badge">4 Offices</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="fa-solid fa-file-invoice"></i></div>
+              <div class="stat-info"><span id="kpi-votes">0</span><p>Certified Votes</p></div>
+              <span class="stat-trend">Live</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="fa-solid fa-calendar-check"></i></div>
+              <div class="stat-info"><span id="kpi-schedules">1</span><p>Election Schedules</p></div>
+              <span class="status-pill-sm" id="kpi-poll-state"><span class="green-dot"></span> Open</span>
+            </div>
+          </div>
+
+          <div class="dashboard-bottom-grid">
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-star text-purple"></i> Featured Candidates</h3>
+                <button type="button" class="btn-pill-outline" data-admin-nav="candidates">
+                  Manage All <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div class="featured-grid" id="admin-featured-grid"></div>
+            </div>
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-chart-column text-purple"></i> Departmental Turnout</h3>
+              </div>
+              <div id="admin-dept-bars" class="space-y-3"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="admin-view-candidates" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Candidates &amp; Platforms Management</h2>
+              <p>Add, edit, feature, or remove candidates across positions.</p>
+            </div>
+            <div class="banner-actions">
+              <select id="admin-position-filter" class="select-control" aria-label="Filter Candidates by Position">
+                <option value="all">All Positions</option>
+              </select>
+              <button type="button" class="btn-purple-solid" id="open-add-candidate-btn">
+                <i class="fa-solid fa-user-plus"></i> Add Candidate
+              </button>
+            </div>
+          </div>
+          <div id="admin-candidates-container" class="positions-stack"></div>
+        </section>
+
+        <section id="admin-view-positions" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Manage Election Positions</h2>
+              <p>Create, rename, or remove council positions.</p>
+            </div>
+            <button type="button" class="btn-purple-solid" id="open-add-position-btn">
+              <i class="fa-solid fa-folder-plus"></i> Add Position
+            </button>
+          </div>
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Position Title</th>
+                    <th>Description</th>
+                    <th>Candidates</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-positions-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="admin-view-ballot" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Ballot &amp; Receipts Audit</h2>
+              <p>Record walk-in ballots and inspect submitted voting receipts.</p>
+            </div>
+            <button type="button" class="btn-purple-solid" id="open-walkin-ballot-btn">
+              <i class="fa-solid fa-plus"></i> Record Walk-In Ballot
+            </button>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3><i class="fa-solid fa-receipt text-purple"></i> Submitted Digital Receipts</h3>
+            </div>
+            <div id="admin-receipts-list" class="space-y-3"></div>
+          </div>
+        </section>
+
+        <section id="admin-view-students" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Voters &amp; Voting Status</h2>
+              <p>Add students, toggle voted status, or remove voter accounts.</p>
+            </div>
+            <div class="banner-actions">
+              <input type="search" id="admin-student-search" class="select-control" placeholder="Search name, ID, email..." />
+              <select id="admin-student-status-filter" class="select-control" aria-label="Filter Student Status">
+                <option value="all">All Status</option>
+                <option value="Voted">Voted</option>
+                <option value="Pending">Pending</option>
+              </select>
+              <button type="button" class="btn-purple-solid" id="open-add-student-btn">
+                <i class="fa-solid fa-user-plus"></i> Add Student
+              </button>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Dept &amp; Course</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-students-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="admin-view-results" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Election Results &amp; Tally Control</h2>
+              <p>Inspect live vote counts or adjust candidate tallies.</p>
+            </div>
+            <div class="badge-status voted">
+              Total Ballots: <strong id="admin-results-total">0</strong>
+            </div>
+          </div>
+          <div id="admin-results-container" class="positions-stack"></div>
+        </section>
+
+        <section id="admin-view-elections" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Schedules, Security Rules &amp; Master Control</h2>
+              <p>Manage election schedules, ballot rules, poll status, and data resets.</p>
+            </div>
+            <button type="button" class="btn-purple-solid" id="open-add-schedule-btn">
+              <i class="fa-solid fa-calendar-plus"></i> Add Schedule
+            </button>
+          </div>
+          <div id="admin-schedules-list" class="positions-stack mb-5"></div>
+          <div class="panel-card mb-5">
+            <div class="control-row">
+              <div>
+                <h3>Master Poll Status</h3>
+                <p class="text-sm text-purple-200/70">Open or close voting across student sessions.</p>
+              </div>
+              <button type="button" class="btn-purple-solid" id="toggle-master-poll-btn">Polls Are OPEN</button>
+            </div>
+            <div class="control-row no-border">
+              <div>
+                <h3>Reset Election Votes &amp; Receipts</h3>
+                <p class="text-sm text-purple-200/70">Reset tallies and clear student voting receipts.</p>
+              </div>
+              <button type="button" class="btn-outline-danger" id="reset-election-data-btn">
+                <i class="fa-solid fa-rotate-right"></i> Reset Election Data
+              </button>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3><i class="fa-solid fa-shield-halved text-purple"></i> Ballot Security &amp; Rules</h3>
+              <button type="button" class="btn-pill-outline" id="open-add-rule-btn">
+                <i class="fa-solid fa-plus"></i> Add Rule
+              </button>
+            </div>
+            <ul class="security-list" id="admin-rules-list"></ul>
+          </div>
+        </section>
+
+        <section id="admin-view-reports" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Reports &amp; Audit Exports</h2>
+              <p>Export certified CSV election reports or JSON audit snapshots.</p>
+            </div>
+            <div class="banner-actions">
+              <button type="button" class="btn-pill-outline" id="export-json-btn">
+                <i class="fa-solid fa-file-code"></i> Export JSON Audit
+              </button>
+              <button type="button" class="btn-purple-solid" id="export-csv-btn">
+                <i class="fa-solid fa-file-csv"></i> Download CSV Report
+              </button>
+            </div>
+          </div>
+          <div id="admin-reports-summary" class="panel-card"></div>
+        </section>
+
+        <section id="admin-view-profile" class="view-section">
+          <div class="section-banner">
+            <div>
+              <h2>Administrator Profile</h2>
+              <p>View and update administrator account details.</p>
+            </div>
+          </div>
+          <div id="admin-profile-container" class="panel-card"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="portal-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-box">
+      <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="portal-toast" class="toast-box">
+    <i class="fa-solid fa-circle-check text-purple-300"></i>
+    <span id="portal-toast-msg">Done</span>
+  </div>
+
+  <script>
+    const ADMIN_CREDENTIALS = {
+      email: "alcantarajoannacelyn@gmail.com",
+      password: "Admin_123"
+    };
+
+    const STORAGE_KEY = "scces_combined_portal_v1";
+
+    const COURSES_BY_DEPT = {
+      CICS: ["BS Information Technology", "BS Computer Science", "BS Information Systems"],
+      COE: ["BEEd", "BSEd - English", "BSEd - Mathematics", "BSEd - Science"],
+      COENG: ["BS Civil Engineering", "BS Electrical Engineering", "BS Mechanical Engineering"],
+      COM: ["BSBA - Marketing Management", "BSBA - Financial Management", "BS Accountancy"],
+      CAS: ["BA Political Science", "BS Psychology", "BS Biology"],
+      CIT: ["BS Industrial Technology - Automotive", "BS Industrial Technology - Electrical"],
+      CHTM: ["BS Hospitality Management", "BS Tourism Management"]
+    };
+
+    function createDefaultState() {
+      return {
+        session: null, // { role: 'student' | 'admin', email: string }
+        pollsOpen: true,
+        schedules: [
+          {
+            id: "sched-1",
+            title: "Student Council Election 2026",
+            deadline: "2026-11-30T23:59",
+            status: "Open"
+          }
+        ],
+        positions: [
+          { id: "president", title: "President", subtitle: "Leads the Student Council & represents the student body" },
+          { id: "vice-president", title: "Vice President", subtitle: "Assists the President & oversees student committees" },
+          { id: "secretary", title: "Secretary", subtitle: "Maintains official council records, minutes & announcements" },
+          { id: "treasurer", title: "Treasurer", subtitle: "Manages council budget, financial reports & fundraising" }
+        ],
+        candidates: [
+          {
+            id: "cand-1",
+            positionId: "president",
+            name: "Elena Morales",
+            party: "Unity Coalition",
+            courseYear: "BSCS 4A",
+            featured: true,
+            votes: 34,
+            platform: "Transparent council budgeting, 24/7 digital study hubs, and monthly town halls."
+          },
+          {
+            id: "cand-2",
+            positionId: "president",
+            name: "Marcus Villanueva",
+            party: "Forward Campus",
+            courseYear: "BSIT 4B",
+            featured: true,
+            votes: 28,
+            platform: "Faster campus Wi-Fi zones, mental health wellness days, and org grant expansion."
+          },
+          {
+            id: "cand-3",
+            positionId: "vice-president",
+            name: "Chloe Santos",
+            party: "Unity Coalition",
+            courseYear: "BSBA 3A",
+            featured: true,
+            votes: 38,
+            platform: "Inter-college leadership summits, peer tutoring networks, and student rights desk."
+          },
+          {
+            id: "cand-4",
+            positionId: "vice-president",
+            name: "Liam Reyes",
+            party: "Forward Campus",
+            courseYear: "BSEE 3B",
+            featured: false,
+            votes: 24,
+            platform: "Extended library hours during exam weeks and improved student event coordination."
+          },
+          {
+            id: "cand-5",
+            positionId: "secretary",
+            name: "Hannah Lim",
+            party: "Unity Coalition",
+            courseYear: "BSEd 2A",
+            featured: true,
+            votes: 41,
+            platform: "Public meeting digests within 48 hours and a centralized student concern tracker."
+          },
+          {
+            id: "cand-6",
+            positionId: "treasurer",
+            name: "Noah Mendoza",
+            party: "Forward Campus",
+            courseYear: "BSA 3A",
+            featured: false,
+            votes: 36,
+            platform: "Quarterly financial dashboards and fair allocation for academic and arts clubs."
+          }
+        ],
+        students: [
+          {
+            id: "2026-0001",
+            name: "Sophia Lopez",
+            gender: "Female",
+            department: "CICS",
+            course: "BS Information Technology",
+            yearSection: "3A",
+            contactNumber: "09171234567",
+            emergencyNumber: "09181234567",
+            birthDate: "2005-06-14",
+            address: "Estancia, Iloilo",
+            email: "sophia.lopez@school.edu",
+            password: "Student_123",
+            voted: false,
+            receipt: null
+          },
+          {
+            id: "2026-0002",
+            name: "Daniel Cruz",
+            gender: "Male",
+            department: "COE",
+            course: "BSEd - English",
+            yearSection: "2B",
+            contactNumber: "09175551122",
+            emergencyNumber: "09185551122",
+            birthDate: "2006-02-19",
+            address: "Balasan, Iloilo",
+            email: "daniel.cruz@school.edu",
+            password: "Student_123",
+            voted: true,
+            receipt: {
+              code: "RCPT-2026-8841",
+              submittedAt: "Nov 20, 2026 • 02:15 PM",
+              selections: {
+                president: "Elena Morales",
+                "vice-president": "Chloe Santos",
+                secretary: "Hannah Lim",
+                treasurer: "Noah Mendoza"
+              }
+            }
+          }
+        ],
+        rules: [
+          "One verified student account is permitted to cast one ballot per election.",
+          "Ballot selections are encrypted and locked once submitted.",
+          "Administrators cannot alter student credentials without audit logs.",
+          "Official tallies reflect all verified digital and walk-in ballots."
+        ],
+        adminProfile: {
+          name: "Joanna Alcantara",
+          role: "Election Administrator",
+          email: ADMIN_CREDENTIALS.email,
+          department: "Office of Student Affairs"
+        }
+      };
+    }
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createDefaultState();
+        const parsed = JSON.parse(raw);
+        return { ...createDefaultState(), ...parsed };
+      } catch {
+        return createDefaultState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("portal-toast");
+      const text = document.getElementById("portal-toast-msg");
+      text.textContent = msg;
+      box.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => box.classList.remove("show"), 2800);
+    }
+
+    function openModal(html) {
+      document.getElementById("modal-content").innerHTML = html;
+      document.getElementById("portal-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("portal-modal").classList.add("hidden");
+      document.getElementById("modal-content").innerHTML = "";
+    }
+
+    function getInitials(name = "User") {
+      return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((p) => p[0]?.toUpperCase() || "")
+        .join("") || "US";
+    }
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // AUTHENTICATION & ISOLATION
+    function syncShellVisibility() {
+      const authGate = document.getElementById("auth-gate");
+      const studentShell = document.getElementById("student-portal-shell");
+      const adminShell = document.getElementById("admin-portal-shell");
+
+      if (!state.session) {
+        authGate.classList.remove("hidden");
+        studentShell.classList.add("hidden");
+        adminShell.classList.add("hidden");
+        return;
+      }
+
+      if (state.session.role === "admin") {
+        authGate.classList.add("hidden");
+        studentShell.classList.add("hidden");
+        adminShell.classList.remove("hidden");
+        renderAdminPortal();
+      } else {
+        authGate.classList.add("hidden");
+        adminShell.classList.add("hidden");
+        studentShell.classList.remove("hidden");
+        renderStudentPortal();
+      }
+    }
+
+    function switchAuthMode(mode) {
+      const loginTab = document.getElementById("studentLoginTab");
+      const regTab = document.getElementById("studentRegisterTab");
+      const loginForm = document.getElementById("loginForm");
+      const regForm = document.getElementById("registerForm");
+
+      if (mode === "login") {
+        loginTab.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold bg-purple-700 text-white shadow cursor-pointer";
+        regTab.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold text-purple-200 hover:text-white cursor-pointer";
+        loginForm.classList.remove("hidden");
+        regForm.classList.add("hidden");
+      } else {
+        regTab.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold bg-purple-700 text-white shadow cursor-pointer";
+        loginTab.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold text-purple-200 hover:text-white cursor-pointer";
+        regForm.classList.remove("hidden");
+        loginForm.classList.add("hidden");
+      }
+    }
+
+    function validatePasswordRules(pwd) {
+      const checks = {
+        length: pwd.length >= 8,
+        lowercase: /[a-z]/.test(pwd),
+        uppercase: /[A-Z]/.test(pwd),
+        number: /[0-9]/.test(pwd),
+        special: /[^A-Za-z0-9]/.test(pwd)
+      };
+      document.querySelectorAll("#passwordRequirements li").forEach((li) => {
+        const rule = li.dataset.rule;
+        const ok = Boolean(checks[rule]);
+        li.className = ok ? "text-emerald-300" : "text-purple-300/80";
+        li.innerHTML = `<i class="fa-solid ${ok ? "fa-check" : "fa-xmark"} mr-1.5"></i>${li.textContent.trim()}`;
+      });
+      return Object.values(checks).every(Boolean);
+    }
+
+    document.getElementById("studentLoginTab").addEventListener("click", () => switchAuthMode("login"));
+    document.getElementById("studentRegisterTab").addEventListener("click", () => switchAuthMode("register"));
+
+    document.getElementById("toggleLoginPassBtn").addEventListener("click", () => {
+      const input = document.getElementById("loginPassword");
+      const icon = document.querySelector("#toggleLoginPassBtn i");
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      icon.className = show ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value;
+
+      if (email === ADMIN_CREDENTIALS.email.toLowerCase() && password === ADMIN_CREDENTIALS.password) {
+        state.session = { role: "admin", email: ADMIN_CREDENTIALS.email };
+        saveState();
+        showToast("Signed in to Administrator Portal");
+        syncShellVisibility();
+        return;
+      }
+
+      const student = state.students.find(
+        (s) => s.email.toLowerCase() === email && s.password === password
+      );
+      if (student) {
+        state.session = { role: "student", email: student.email };
+        saveState();
+        showToast(`Welcome back, ${student.name}`);
+        syncShellVisibility();
+        return;
+      }
+
+      showToast("Invalid email or password");
+    });
+
+    document.getElementById("registerDepartment").addEventListener("change", (e) => {
+      const courseSelect = document.getElementById("registerCourse");
+      const list = COURSES_BY_DEPT[e.target.value] || [];
+      courseSelect.disabled = list.length === 0;
+      courseSelect.innerHTML = list.length
+        ? `<option value="" disabled selected>Select course</option>` +
+          list.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("")
+        : `<option value="">Select college first</option>`;
+    });
+
+    const regPwdInput = document.getElementById("registerPassword");
+    const confirmPwdInput = document.getElementById("confirmPassword");
+    const mismatchWarn = document.getElementById("passwordMismatchWarning");
+
+    function syncRegisterPasswordUI() {
+      validatePasswordRules(regPwdInput.value);
+      if (confirmPwdInput.value.length > 0 && regPwdInput.value !== confirmPwdInput.value) {
+        mismatchWarn.classList.remove("hidden");
+      } else {
+        mismatchWarn.classList.add("hidden");
+      }
+    }
+
+    regPwdInput.addEventListener("input", syncRegisterPasswordUI);
+    confirmPwdInput.addEventListener("input", syncRegisterPasswordUI);
+
+    document.getElementById("registerForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("registerEmail").value.trim();
+      const studentId = document.getElementById("registerStudentId").value.trim();
+      const pwd = regPwdInput.value;
+      const confirm = confirmPwdInput.value;
+
+      if (!validatePasswordRules(pwd)) {
+        showToast("Password does not meet all security rules");
+        return;
+      }
+      if (pwd !== confirm) {
+        mismatchWarn.classList.remove("hidden");
+        showToast("Passwords do not match");
+        return;
+      }
+      if (email.toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase()) {
+        showToast("This email is reserved");
+        return;
+      }
+      if (state.students.some((s) => s.email.toLowerCase() === email.toLowerCase() || s.id === studentId)) {
+        showToast("Student ID or email already exists");
+        return;
+      }
+
+      const newStudent = {
+        id: studentId,
+        name: document.getElementById("registerName").value.trim(),
+        gender: document.getElementById("registerGender").value,
+        department: document.getElementById("registerDepartment").value,
+        course: document.getElementById("registerCourse").value,
+        yearSection: document.getElementById("registerYearSection").value,
+        contactNumber: document.getElementById("registerContactNumber").value.trim(),
+        emergencyNumber: document.getElementById("registerEmergencyNumber").value.trim(),
+        birthDate: document.getElementById("registerBirthDate").value,
+        address: document.getElementById("registerAddress").value.trim(),
+        email,
+        password: pwd,
+        voted: false,
+        receipt: null
+      };
+
+      state.students.push(newStudent);
+      state.session = { role: "student", email: newStudent.email };
+      saveState();
+      e.target.reset();
+      showToast("Student account created");
+      syncShellVisibility();
+    });
+
+    // SHARED NAVIGATION, SIDEBAR, LOGOUT & MODAL CONTROLS
+    document.querySelectorAll('[data-action="logout"]').forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.session = null;
+        saveState();
+        document.getElementById("loginForm").reset();
+        switchAuthMode("login");
+        showToast("Logged out");
+        syncShellVisibility();
+      });
+    });
+
+    document.querySelectorAll("[data-toggle-sidebar]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = document.getElementById(btn.dataset.toggleSidebar);
+        target?.classList.toggle("open");
+      });
+    });
+
+    document.getElementById("modal-close-btn").addEventListener("click", closeModal);
+    document.getElementById("modal-backdrop").addEventListener("click", closeModal);
+
+    function switchStudentView(viewName) {
+      document.querySelectorAll("#student-portal-shell .nav-item[data-student-view]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.studentView === viewName);
+      });
+      document.querySelectorAll("#student-portal-shell .view-section").forEach((sec) => {
+        sec.classList.toggle("active", sec.id === `student-view-${viewName}`);
+      });
+      document.getElementById("student-sidebar")?.classList.remove("open");
+    }
+
+    function switchAdminView(viewName) {
+      if (state.session?.role !== "admin") return;
+      document.querySelectorAll("#admin-portal-shell .nav-item[data-admin-view]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.adminView === viewName);
+      });
+      document.querySelectorAll("#admin-portal-shell .view-section").forEach((sec) => {
+        sec.classList.toggle("active", sec.id === `admin-view-${viewName}`);
+      });
+      document.getElementById("admin-sidebar")?.classList.remove("open");
+    }
+
+    document.querySelectorAll("[data-student-view]").forEach((btn) => {
+      btn.addEventListener("click", () => switchStudentView(btn.dataset.studentView));
+    });
+    document.querySelectorAll("[data-student-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => switchStudentView(btn.dataset.studentNav));
+    });
+    document.querySelectorAll("[data-admin-view]").forEach((btn) => {
+      btn.addEventListener("click", () => switchAdminView(btn.dataset.adminView));
+    });
+    document.querySelectorAll("[data-admin-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => switchAdminView(btn.dataset.adminNav));
+    });
+
+    // STUDENT PORTAL RENDERING
+    function getCurrentStudent() {
+      if (!state.session || state.session.role !== "student") return null;
+      return state.students.find((s) => s.email.toLowerCase() === state.session.email.toLowerCase()) || null;
+    }
+
+    function renderStudentPortal() {
+      const student = getCurrentStudent();
+      if (!student) return;
+
+      const firstName = student.name.split(/\s+/)[0] || "Student";
+      document.getElementById("student-welcome-name").textContent = firstName;
+      document.getElementById("student-name-chip").textContent = student.name;
+      document.getElementById("student-avatar-chip").textContent = getInitials(student.name);
+      document.getElementById("ballot-voter-name").textContent = `${student.name} (${student.id})`;
+
+      const activeSched = state.schedules[0] || {
+        title: "Student Council Election 2026",
+        deadline: "2026-11-30T23:59"
+      };
+      document.getElementById("student-election-title").textContent = activeSched.title;
+      document.getElementById("student-election-deadline").textContent = new Date(activeSched.deadline).toLocaleString();
+
+      const pollPill = document.getElementById("student-poll-pill");
+      pollPill.className = state.pollsOpen ? "status-pill" : "status-pill closed";
+      pollPill.innerHTML = `<span class="green-dot"></span> ${state.pollsOpen ? "Election Open" : "Polls Closed"}`;
+
+      document.getElementById("student-dash-status-label").textContent = student.voted ? "Vote Submitted" : "Not Yet Voted";
+      document.getElementById("student-dash-status-box").innerHTML = student.voted
+        ? `<span class="badge-status voted mb-3"><i class="fa-solid fa-check mr-1"></i> Verified</span>
+           <p class="text-sm text-purple-100 mb-2">Receipt Code: <strong>${escapeHtml(student.receipt?.code || "N/A")}</strong></p>
+           <p class="text-xs text-purple-200/70 mb-4">Submitted on ${escapeHtml(student.receipt?.submittedAt || "")}</p>
+           <button type="button" class="btn-pill-outline" id="view-receipt-shortcut-btn">View Receipt</button>`
+        : `<span class="badge-status pending mb-3"><i class="fa-regular fa-clock mr-1"></i> Pending Ballot</span>
+           <p class="text-sm text-purple-200/80 mb-4">You have not cast your ballot yet.</p>
+           <button type="button" class="btn-purple-solid" id="cast-vote-shortcut-btn">Go to Official Ballot</button>`;
+
+      document.getElementById("view-receipt-shortcut-btn")?.addEventListener("click", () => switchStudentView("status"));
+      document.getElementById("cast-vote-shortcut-btn")?.addEventListener("click", () => switchStudentView("ballot"));
+
+      const featured = state.candidates.filter((c) => c.featured);
+      document.getElementById("student-featured-grid").innerHTML = featured.length
+        ? featured.map((c) => {
+            const pos = state.positions.find((p) => p.id === c.positionId)?.title || c.positionId;
+            return `<div class="candidate-card">
+              <div class="cand-top">
+                <div class="cand-avatar">${escapeHtml(getInitials(c.name))}</div>
+                <div>
+                  <h4 class="cand-name">${escapeHtml(c.name)}</h4>
+                  <span class="cand-party">${escapeHtml(pos)} • ${escapeHtml(c.party)}</span>
+                </div>
+              </div>
+              <p class="cand-platform">${escapeHtml(c.platform)}</p>
+            </div>`;
+          }).join("")
+        : `<p class="text-sm text-purple-200/70">No featured candidates selected yet.</p>`;
+
+      renderStudentCandidates(student);
+      renderStudentBallot(student);
+      renderStudentStatus(student);
+      renderStudentResults();
+      renderStudentProfile(student);
+    }
+
+    function renderStudentCandidates() {
+      const filterEl = document.getElementById("student-position-filter");
+      const currentFilter = filterEl.value || "all";
+      filterEl.innerHTML = `<option value="all">All Positions</option>` +
+        state.positions.map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.title)}</option>`).join("");
+      filterEl.value = state.positions.some((p) => p.id === currentFilter) ? currentFilter : "all";
+
+      const visiblePositions = filterEl.value === "all"
+        ? state.positions
+        : state.positions.filter((p) => p.id === filterEl.value);
+
+      document.getElementById("student-all-candidates").innerHTML = visiblePositions.map((pos) => {
+        const list = state.candidates.filter((c) => c.positionId === pos.id);
+        return `<div class="position-group">
+          <div class="position-group-header">
+            <h3>${escapeHtml(pos.title)}</h3>
+            <span>${escapeHtml(pos.subtitle || "")}</span>
+          </div>
+          <div class="candidates-row">
+            ${list.length ? list.map((c) => `
+              <div class="candidate-card">
+                <div class="cand-top">
+                  <div class="cand-avatar">${escapeHtml(getInitials(c.name))}</div>
+                  <div>
+                    <h4 class="cand-name">${escapeHtml(c.name)}</h4>
+                    <span class="cand-party">${escapeHtml(c.party)} • ${escapeHtml(c.courseYear || "")}</span>
+                  </div>
+                </div>
+                <p class="cand-platform">${escapeHtml(c.platform)}</p>
+              </div>
+            `).join("") : `<p class="text-sm text-purple-200/70">No candidates listed for this position.</p>`}
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    document.getElementById("student-position-filter").addEventListener("change", renderStudentCandidates);
+
+    function renderStudentBallot(student) {
+      const box = document.getElementById("student-ballot-container");
+      if (!state.pollsOpen) {
+        box.innerHTML = `<div class="panel-card"><p class="text-sm text-rose-300 font-semibold">Voting is currently closed by the election administrator.</p></div>`;
+        return;
+      }
+      if (student.voted) {
+        box.innerHTML = `<div class="panel-card">
+          <span class="badge-status voted mb-3"><i class="fa-solid fa-check mr-1"></i> Ballot Already Submitted</span>
+          <p class="text-sm text-purple-200/80 mb-4">Your vote has already been recorded under receipt <strong>${escapeHtml(student.receipt?.code || "")}</strong>.</p>
+          <button type="button" class="btn-pill-outline" id="ballot-to-status-btn">View Voting Receipt</button>
+        </div>`;
+        document.getElementById("ballot-to-status-btn")?.addEventListener("click", () => switchStudentView("status"));
+        return;
+      }
+
+      box.innerHTML = `<form id="student-ballot-form" class="positions-stack">
+        ${state.positions.map((pos) => {
+          const cands = state.candidates.filter((c) => c.positionId === pos.id);
+          return `<div class="position-group">
+            <div class="position-group-header">
+              <h3>${escapeHtml(pos.title)}</h3>
+              <span>Select one candidate</span>
+            </div>
+            <div class="candidates-row">
+              ${cands.map((c) => `
+                <label class="ballot-option">
+                  <input type="radio" name="pos_${escapeHtml(pos.id)}" value="${escapeHtml(c.id)}" required class="mt-1 accent-purple-500" />
+                  <div>
+                    <strong class="block text-sm text-white">${escapeHtml(c.name)}</strong>
+                    <span class="block text-xs text-purple-300">${escapeHtml(c.party)}</span>
+                    <p class="text-xs text-purple-200/75 mt-1 mb-0">${escapeHtml(c.platform)}</p>
+                  </div>
+                </label>
+              `).join("")}
+            </div>
+          </div>`;
+        }).join("")}
+        <div class="flex justify-end">
+          <button type="submit" class="btn-purple-solid py-3 px-6 text-sm">
+            <i class="fa-solid fa-paper-plane"></i> Submit Official Ballot
+          </button>
+        </div>
+      </form>`;
+
+      document.querySelectorAll("#student-ballot-form .ballot-option input[type='radio']").forEach((radio) => {
+        radio.addEventListener("change", () => {
+          document.querySelectorAll(`input[name="${radio.name}"]`).forEach((r) => {
+            r.closest(".ballot-option").classList.toggle("selected", r.checked);
+          });
+        });
+      });
+
+      document.getElementById("student-ballot-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const selections = {};
+        for (const pos of state.positions) {
+          const checked = e.querySelector(`input[name="pos_${pos.id}"]:checked`);
+          if (!checked) {
+            showToast(`Please select a candidate for ${pos.title}`);
+            return;
+          }
+          const cand = state.candidates.find((c) => c.id === checked.value);
+          if (cand) {
+            cand.votes = (cand.votes || 0) + 1;
+            selections[pos.title] = cand.name;
+          }
+        }
+
+        student.voted = true;
+        student.receipt = {
+          code: `RCPT-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          submittedAt: new Date().toLocaleString(),
+          selections
+        };
+        saveState();
+        showToast("Your ballot has been submitted");
+        renderStudentPortal();
+        switchStudentView("status");
+      });
+    }
+
+    function renderStudentStatus(student) {
+      const container = document.getElementById("student-status-container");
+      if (!student.voted || !student.receipt) {
+        container.innerHTML = `<span class="badge-status pending mb-3">Not Yet Voted</span>
+          <p class="text-sm text-purple-200/80 mb-4">Submit your official ballot to generate your digital voting receipt.</p>
+          <button type="button" class="btn-purple-solid" id="status-cast-btn">Cast Vote Now</button>`;
+        document.getElementById("status-cast-btn")?.addEventListener("click", () => switchStudentView("ballot"));
+        return;
+      }
+
+      const rows = Object.entries(student.receipt.selections || {})
+        .map(([office, candName]) => `<li class="flex justify-between py-2 border-b border-purple-800/40 text-sm">
+          <span class="text-purple-300 font-semibold">${escapeHtml(office)}</span>
+          <span class="text-white font-bold">${escapeHtml(candName)}</span>
+        </li>`)
+        .join("");
+
+      container.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <span class="badge-status voted mb-2">Vote Verified</span>
+          <h3 class="text-lg font-bold m-0">Receipt ID: ${escapeHtml(student.receipt.code)}</h3>
+          <p class="text-xs text-purple-300 m-0">Recorded: ${escapeHtml(student.receipt.submittedAt)}</p>
+        </div>
+        <button type="button" class="btn-pill-outline" id="print-receipt-btn">
+          <i class="fa-solid fa-print"></i> Print Receipt
+        </button>
+      </div>
+      <ul class="list-none p-0 m-0">${rows}</ul>`;
+
+      document.getElementById("print-receipt-btn")?.addEventListener("click", () => window.print());
+    }
+
+    function buildResultPie(positionId, candidates) {
+      const colors = ["#ff9b67", "#ec4899", "#67d9bd", "#77a9ef", "#a855f7", "#f59e0b"];
+      const total = candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
+
+      if (total === 0) {
+        const legend = candidates.map((c, idx) => `
+          <div class="result-legend-item">
+            <span class="result-legend-swatch" style="background:${colors[idx % colors.length]}"></span>
+            <span class="result-legend-name">${escapeHtml(c.name)} - 0%</span>
+          </div>
+        `).join("");
+        return `<div>
+          <div class="pie-chart-wrap">
+            <div class="pie-chart" style="background:#4c268a" aria-label="No votes recorded"></div>
+          </div>
+          <div class="result-legend">${legend}</div>
+        </div>`;
+      }
+
+      let angle = 0;
+      const segments = [];
+      const labels = [];
+
+      candidates.forEach((candidate, idx) => {
+        const votes = candidate.votes || 0;
+        if (votes <= 0) return;
+        const pct = (votes / total) * 100;
+        const end = angle + pct * 3.6;
+        const color = colors[idx % colors.length];
+        segments.push(`${color} ${angle.toFixed(2)}deg ${end.toFixed(2)}deg`);
+
+        const midpoint = (angle + end) / 2;
+        const radians = midpoint * Math.PI / 180;
+        const labelLeft = 50 + Math.cos(radians) * 31;
+        const labelTop = 50 + Math.sin(radians) * 31;
+        labels.push(`<span class="pie-chart-label" style="left:${labelLeft.toFixed(2)}%;top:${labelTop.toFixed(2)}%">${Math.round(pct)}%</span>`);
+        angle = end;
+      });
+
+      const legend = candidates.map((c, idx) => {
+        const pct = total > 0 ? Math.round(((c.votes || 0) / total) * 100) : 0;
+        return `<div class="result-legend-item">
+          <span class="result-legend-swatch" style="background:${colors[idx % colors.length]}"></span>
+          <span class="result-legend-name">${escapeHtml(c.name)} - ${pct}%</span>
+        </div>`;
+      }).join("");
+
+      return `<div>
+        <div class="pie-chart-wrap">
+          <div class="pie-chart" style="background:conic-gradient(${segments.join(",")})" role="img" aria-label="${escapeHtml(positionId)} election results">${labels.join("")}</div>
+        </div>
+        <div class="result-legend">${legend}</div>
+      </div>`;
+    }
+
+    function renderStudentResults() {
+      const totalVotes = state.candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
+      document.getElementById("student-results-total").textContent = totalVotes;
+
+      const overallChart = buildResultPie("all election results", state.candidates);
+      const positionResults = state.positions.map((pos) => {
+        const list = state.candidates.filter((c) => c.positionId === pos.id);
+        const posTotal = list.reduce((s, c) => s + (c.votes || 0), 0);
+        return `<div class="position-group">
+          <div class="position-group-header">
+            <h3>${escapeHtml(pos.title)}</h3>
+            <span>${posTotal} total votes in office</span>
+          </div>
+          <div class="space-y-3">
+            ${list.map((c) => {
+              const pct = posTotal > 0 ? Math.round(((c.votes || 0) / posTotal) * 100) : 0;
+              return `<div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span><strong>${escapeHtml(c.name)}</strong> <span class="text-xs text-purple-300">(${escapeHtml(c.party)})</span></span>
+                  <span class="font-bold">${c.votes || 0} votes (${pct}%)</span>
+                </div>
+                <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`;
+      }).join("");
+
+      document.getElementById("student-results-container").innerHTML = `
+        <div class="overall-result-card">
+          <div class="position-group-header">
+            <h3>Overall Voting Results</h3>
+            <span>${totalVotes} total votes</span>
+          </div>
+          <div class="overall-result-layout">${overallChart}</div>
+        </div>
+        ${positionResults}
+      `;
+    }
+
+    function renderStudentProfile(student) {
+      document.getElementById("student-profile-container").innerHTML = `
+        <form id="student-profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs uppercase text-purple-300 mb-1">Full Name</label>
+            <input type="text" name="name" value="${escapeHtml(student.name)}" required class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs uppercase text-purple-300 mb-1">Student ID</label>
+            <input type="text" value="${escapeHtml(student.id)}" disabled class="w-full select-control opacity-70" />
+          </div>
+          <div>
+            <label class="block text-xs uppercase text-purple-300 mb-1">Contact Number</label>
+            <input type="tel" name="contactNumber" value="${escapeHtml(student.contactNumber)}" pattern="09[0-9]{9}" maxlength="11" required class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs uppercase text-purple-300 mb-1">Emergency Number</label>
+            <input type="tel" name="emergencyNumber" value="${escapeHtml(student.emergencyNumber)}" pattern="09[0-9]{9}" maxlength="11" required class="w-full select-control" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs uppercase text-purple-300 mb-1">Address</label>
+            <input type="text" name="address" value="${escapeHtml(student.address)}" required class="w-full select-control" />
+          </div>
+          <div class="md:col-span-2 flex justify-end">
+            <button type="submit" class="btn-purple-solid"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button>
+          </div>
+        </form>`;
+
+      document.getElementById("student-profile-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        student.name = fd.get("name").toString().trim();
+        student.contactNumber = fd.get("contactNumber").toString().trim();
+        student.emergencyNumber = fd.get("emergencyNumber").toString().trim();
+        student.address = fd.get("address").toString().trim();
+        saveState();
+        showToast("Student profile updated");
+        renderStudentPortal();
+      });
+    }
+
+    document.getElementById("banner-student-info").addEventListener("click", () => switchStudentView("profile"));
+    document.getElementById("card-voting-status").addEventListener("click", () => switchStudentView("status"));
+    document.getElementById("card-ballot-security").addEventListener("click", () => {
+      openModal(`<h3 class="text-lg font-bold mb-3"><i class="fa-solid fa-shield-halved text-purple mr-2"></i>Ballot Security Guidelines</h3>
+        <ul class="space-y-2 text-sm text-purple-100 list-disc pl-5">
+          ${state.rules.map((r) => `<li>${escapeHtml(r)}</li>`).join("")}
+        </ul>`);
+    });
+
+    // ADMIN PORTAL RENDERING & MANAGEMENT
+    document.getElementById("admin-notif-btn").addEventListener("click", () => {
+      document.getElementById("admin-notif-dropdown").classList.toggle("hidden");
+    });
+
+    function renderAdminPortal() {
+      if (state.session?.role !== "admin") return;
+      const votedCount = state.students.filter((s) => s.voted).length;
+      const totalVotes = state.candidates.reduce((s, c) => s + (c.votes || 0), 0);
+      const sched = state.schedules[0] || { title: "Student Council Election 2026", deadline: "2026-11-30T23:59" };
+
+      document.getElementById("admin-chip-name").textContent = state.adminProfile.name;
+      document.getElementById("admin-welcome-name").textContent = state.adminProfile.name.split(/\s+/)[0] || "Admin";
+      document.getElementById("admin-card-email").textContent = state.adminProfile.email;
+      document.getElementById("admin-election-title").textContent = sched.title;
+      document.getElementById("admin-election-deadline").textContent = new Date(sched.deadline).toLocaleString();
+
+      const pillClass = state.pollsOpen ? "status-pill" : "status-pill closed";
+      const pillLabel = state.pollsOpen ? "Election Open" : "Polls Closed";
+      document.getElementById("admin-poll-pill").className = pillClass;
+      document.getElementById("admin-poll-pill").innerHTML = `<span class="green-dot"></span> ${pillLabel}`;
+      document.getElementById("kpi-poll-state").className = state.pollsOpen ? "status-pill-sm" : "status-pill-sm closed";
+      document.getElementById("kpi-poll-state").innerHTML = `<span class="green-dot"></span> ${state.pollsOpen ? "Open" : "Closed"}`;
+
+      document.getElementById("admin-turnout-summary").textContent = `${votedCount} / ${state.students.length} Voted`;
+      document.getElementById("admin-rules-summary").textContent = `${state.rules.length} Active Rules`;
+      document.getElementById("kpi-students").textContent = state.students.length;
+      document.getElementById("kpi-candidates").textContent = state.candidates.length;
+      document.getElementById("kpi-positions-badge").textContent = `${state.positions.length} Offices`;
+      document.getElementById("kpi-votes").textContent = totalVotes;
+      document.getElementById("kpi-schedules").textContent = state.schedules.length;
+
+      const featured = state.candidates.filter((c) => c.featured);
+      document.getElementById("admin-featured-grid").innerHTML = featured.map((c) => {
+        const pos = state.positions.find((p) => p.id === c.positionId)?.title || c.positionId;
+        return `<div class="candidate-card">
+          <div>
+            <strong class="block text-sm">${escapeHtml(c.name)}</strong>
+            <span class="text-xs text-purple-300">${escapeHtml(pos)} • ${escapeHtml(c.party)}</span>
+          </div>
+          <p class="cand-platform">${escapeHtml(c.platform)}</p>
+        </div>`;
+      }).join("");
+
+      const deptCounts = {};
+      state.students.forEach((s) => {
+        deptCounts[s.department] = (deptCounts[s.department] || 0) + 1;
+      });
+      const deptEntries = Object.entries(deptCounts);
+      document.getElementById("admin-dept-bars").innerHTML = deptEntries.length
+        ? deptEntries.map(([dept, count]) => {
+            const pct = Math.min(100, Math.round((count / Math.max(1, state.students.length)) * 100));
+            return `<div>
+              <div class="flex justify-between text-xs mb-1"><span>${escapeHtml(dept)}</span><span>${count} voters (${pct}%)</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+            </div>`;
+          }).join("")
+        : `<p class="text-sm text-purple-200/70">No registered voters yet.</p>`;
+
+      renderAdminCandidates();
+      renderAdminPositions();
+      renderAdminReceipts();
+      renderAdminStudents();
+      renderAdminResults();
+      renderAdminElections();
+      renderAdminReports(totalVotes);
+      renderAdminProfile();
+    }
+
+    function renderAdminCandidates() {
+      const filterEl = document.getElementById("admin-position-filter");
+      const current = filterEl.value || "all";
+      filterEl.innerHTML = `<option value="all">All Positions</option>` +
+        state.positions.map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.title)}</option>`).join("");
+      filterEl.value = state.positions.some((p) => p.id === current) ? current : "all";
+
+      const posList = filterEl.value === "all"
+        ? state.positions
+        : state.positions.filter((p) => p.id === filterEl.value);
+
+      document.getElementById("admin-candidates-container").innerHTML = posList.map((pos) => {
+        const list = state.candidates.filter((c) => c.positionId === pos.id);
+        return `<div class="position-group">
+          <div class="position-group-header">
+            <h3>${escapeHtml(pos.title)}</h3>
+            <span>${list.length} candidate(s)</span>
+          </div>
+          <div class="candidates-row">
+            ${list.map((c) => `
+              <div class="candidate-card">
+                <div>
+                  <div class="flex items-center justify-between gap-2">
+                    <strong class="text-sm">${escapeHtml(c.name)}</strong>
+                    <span class="text-xs px-2 py-0.5 rounded bg-purple-900/70 text-purple-200">${c.featured ? "Featured" : "Standard"}</span>
+                  </div>
+                  <span class="text-xs text-purple-300">${escapeHtml(c.party)} • ${c.votes || 0} votes</span>
+                  <p class="cand-platform mt-2">${escapeHtml(c.platform)}</p>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-purple-800/40">
+                  <button type="button" class="btn-glass-xs" data-edit-cand="${escapeHtml(c.id)}">Edit</button>
+                  <button type="button" class="btn-glass-xs" data-toggle-feat="${escapeHtml(c.id)}">${c.featured ? "Unfeature" : "Feature"}</button>
+                  <button type="button" class="btn-glass-xs text-rose-300" data-del-cand="${escapeHtml(c.id)}">Delete</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>`;
+      }).join("");
+
+      document.querySelectorAll("[data-edit-cand]").forEach((btn) => {
+        btn.addEventListener("click", () => openCandidateForm(btn.dataset.editCand));
+      });
+      document.querySelectorAll("[data-toggle-feat]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cand = state.candidates.find((c) => c.id === btn.dataset.toggleFeat);
+          if (!cand) return;
+          cand.featured = !cand.featured;
+          saveState();
+          showToast("Updated featured status");
+          renderAdminPortal();
+        });
+      });
+      document.querySelectorAll("[data-del-cand]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.candidates = state.candidates.filter((c) => c.id !== btn.dataset.delCand);
+          saveState();
+          showToast("Candidate removed");
+          renderAdminPortal();
+        });
+      });
+    }
+
+    document.getElementById("admin-position-filter").addEventListener("change", renderAdminCandidates);
+    document.getElementById("open-add-candidate-btn").addEventListener("click", () => openCandidateForm(null));
+
+    function openCandidateForm(candId) {
+      const existing = candId ? state.candidates.find((c) => c.id === candId) : null;
+      openModal(`
+        <h3 class="text-lg font-bold mb-4">${existing ? "Edit Candidate" : "Add Candidate"}</h3>
+        <form id="candidate-crud-form" class="space-y-3">
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Position</label>
+            <select name="positionId" class="w-full select-control" required>
+              ${state.positions.map((p) => `<option value="${escapeHtml(p.id)}" ${existing?.positionId === p.id ? "selected" : ""}>${escapeHtml(p.title)}</option>`).join("")}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Full Name</label>
+            <input type="text" name="name" value="${escapeHtml(existing?.name || "")}" required class="w-full select-control" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-purple-300 mb-1">Coalition / Party</label>
+              <input type="text" name="party" value="${escapeHtml(existing?.party || "")}" required class="w-full select-control" />
+            </div>
+            <div>
+              <label class="block text-xs text-purple-300 mb-1">Course &amp; Year</label>
+              <input type="text" name="courseYear" value="${escapeHtml(existing?.courseYear || "")}" required class="w-full select-control" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Platform</label>
+            <textarea name="platform" rows="3" required class="w-full select-control">${escapeHtml(existing?.platform || "")}</textarea>
+          </div>
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="featured" ${existing?.featured ? "checked" : ""} class="accent-purple-500" />
+            <span>Feature on dashboard</span>
+          </label>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="submit" class="btn-purple-solid">Save Candidate</button>
+          </div>
+        </form>
+      `);
+
+      document.getElementById("candidate-crud-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const payload = {
+          positionId: fd.get("positionId").toString(),
+          name: fd.get("name").toString().trim(),
+          party: fd.get("party").toString().trim(),
+          courseYear: fd.get("courseYear").toString().trim(),
+          platform: fd.get("platform").toString().trim(),
+          featured: Boolean(fd.get("featured"))
+        };
+        if (existing) {
+          Object.assign(existing, payload);
+          showToast("Candidate updated");
+        } else {
+          state.candidates.push({ id: `cand-${Date.now()}`, votes: 0, ...payload });
+          showToast("Candidate added");
+        }
+        saveState();
+        closeModal();
+        renderAdminPortal();
+      });
+    }
+
+    function renderAdminPositions() {
+      document.getElementById("admin-positions-tbody").innerHTML = state.positions.map((pos) => {
+        const count = state.candidates.filter((c) => c.positionId === pos.id).length;
+        return `<tr>
+          <td class="font-bold">${escapeHtml(pos.title)}</td>
+          <td class="text-purple-200/80">${escapeHtml(pos.subtitle || "")}</td>
+          <td>${count}</td>
+          <td class="space-x-2">
+            <button type="button" class="btn-glass-xs" data-edit-pos="${escapeHtml(pos.id)}">Edit</button>
+            <button type="button" class="btn-glass-xs text-rose-300" data-del-pos="${escapeHtml(pos.id)}">Delete</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+      document.querySelectorAll("[data-edit-pos]").forEach((btn) => {
+        btn.addEventListener("click", () => openPositionForm(btn.dataset.editPos));
+      });
+      document.querySelectorAll("[data-del-pos]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.delPos;
+          state.positions = state.positions.filter((p) => p.id !== id);
+          state.candidates = state.candidates.filter((c) => c.positionId !== id);
+          saveState();
+          showToast("Position removed");
+          renderAdminPortal();
+        });
+      });
+    }
+
+    document.getElementById("open-add-position-btn").addEventListener("click", () => openPositionForm(null));
+
+    function openPositionForm(posId) {
+      const existing = posId ? state.positions.find((p) => p.id === posId) : null;
+      openModal(`
+        <h3 class="text-lg font-bold mb-4">${existing ? "Edit Position" : "Add Position"}</h3>
+        <form id="pos-crud-form" class="space-y-3">
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Position Title</label>
+            <input type="text" name="title" value="${escapeHtml(existing?.title || "")}" required class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Description</label>
+            <input type="text" name="subtitle" value="${escapeHtml(existing?.subtitle || "")}" required class="w-full select-control" />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="btn-purple-solid">Save Position</button>
+          </div>
+        </form>
+      `);
+
+      document.getElementById("pos-crud-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = fd.get("title").toString().trim();
+        const subtitle = fd.get("subtitle").toString().trim();
+        if (existing) {
+          existing.title = title;
+          existing.subtitle = subtitle;
+          showToast("Position updated");
+        } else {
+          state.positions.push({
+            id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString().slice(-3),
+            title,
+            subtitle
+          });
+          showToast("Position added");
+        }
+        saveState();
+        closeModal();
+        renderAdminPortal();
+      });
+    }
+
+    function renderAdminReceipts() {
+      const votedStudents = state.students.filter((s) => s.voted && s.receipt);
+      document.getElementById("admin-receipts-list").innerHTML = votedStudents.length
+        ? votedStudents.map((s) => `
+            <div class="p-3 rounded-xl bg-purple-950/50 border border-purple-700/30 text-sm">
+              <div class="flex justify-between font-bold">
+                <span>${escapeHtml(s.receipt.code)} — ${escapeHtml(s.name)} (${escapeHtml(s.id)})</span>
+                <span class="text-xs text-purple-300">${escapeHtml(s.receipt.submittedAt)}</span>
+              </div>
+              <p class="text-xs text-purple-200/80 mt-1 mb-0">
+                ${Object.entries(s.receipt.selections || {}).map(([k, v]) => `${escapeHtml(k)}: ${escapeHtml(v)}`).join(" • ")}
+              </p>
+            </div>
+          `).join("")
+        : `<p class="text-sm text-purple-200/70">No submitted receipts yet.</p>`;
+    }
+
+    document.getElementById("open-walkin-ballot-btn").addEventListener("click", () => {
+      const unvoted = state.students.filter((s) => !s.voted);
+      if (!unvoted.length) {
+        showToast("All registered students have already voted");
+        return;
+      }
+      openModal(`
+        <h3 class="text-lg font-bold mb-4">Record Walk-In Ballot</h3>
+        <form id="walkin-form" class="space-y-3">
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Student Voter</label>
+            <select name="studentId" class="w-full select-control" required>
+              ${unvoted.map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.id)} — ${escapeHtml(s.name)}</option>`).join("")}
+            </select>
+          </div>
+          ${state.positions.map((pos) => {
+            const cands = state.candidates.filter((c) => c.positionId === pos.id);
+            return `<div>
+              <label class="block text-xs text-purple-300 mb-1">${escapeHtml(pos.title)}</label>
+              <select name="cand_${escapeHtml(pos.id)}" class="w-full select-control" required>
+                ${cands.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join("")}
+              </select>
+            </div>`;
+          }).join("")}
+          <div class="flex justify-end pt-2">
+            <button type="submit" class="btn-purple-solid">Record Ballot</button>
+          </div>
+        </form>
+      `);
+
+      document.getElementById("walkin-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const st = state.students.find((s) => s.id === fd.get("studentId"));
+        if (!st) return;
+        const selections = {};
+        for (const pos of state.positions) {
+          const cand = state.candidates.find((c) => c.id === fd.get(`cand_${pos.id}`));
+          if (cand) {
+            cand.votes = (cand.votes || 0) + 1;
+            selections[pos.title] = cand.name;
+          }
+        }
+        st.voted = true;
+        st.receipt = {
+          code: `WALKIN-${Math.floor(1000 + Math.random() * 9000)}`,
+          submittedAt: new Date().toLocaleString(),
+          selections
+        };
+        saveState();
+        closeModal();
+        showToast("Walk-in ballot recorded");
+        renderAdminPortal();
+      });
+    });
+
+    function renderAdminStudents() {
+      const q = (document.getElementById("admin-student-search").value || "").toLowerCase();
+      const stFilter = document.getElementById("admin-student-status-filter").value;
+
+      const filtered = state.students.filter((s) => {
+        const matchesQuery = !q ||
+          s.id.toLowerCase().includes(q) ||
+          s.name.toLowerCase().includes(q) ||
+          s.email.toLowerCase().includes(q) ||
+          s.department.toLowerCase().includes(q);
+        const matchesStatus = stFilter === "all" ||
+          (stFilter === "Voted" && s.voted) ||
+          (stFilter === "Pending" && !s.voted);
+        return matchesQuery && matchesStatus;
+      });
+
+      document.getElementById("admin-students-tbody").innerHTML = filtered.map((s) => `
+        <tr>
+          <td class="font-semibold">${escapeHtml(s.id)}</td>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.department)} • ${escapeHtml(s.course)}</td>
+          <td>${escapeHtml(s.email)}</td>
+          <td><span class="badge-status ${s.voted ? "voted" : "pending"}">${s.voted ? "Voted" : "Pending"}</span></td>
+          <td class="space-x-2">
+            <button type="button" class="btn-glass-xs" data-toggle-voted="${escapeHtml(s.id)}">${s.voted ? "Mark Pending" : "Mark Voted"}</button>
+            <button type="button" class="btn-glass-xs text-rose-300" data-del-student="${escapeHtml(s.id)}">Remove</button>
+          </td>
+        </tr>
+      `).join("");
+
+      document.querySelectorAll("[data-toggle-voted]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const st = state.students.find((x) => x.id === btn.dataset.toggleVoted);
+          if (!st) return;
+          st.voted = !st.voted;
+          if (!st.voted) st.receipt = null;
+          saveState();
+          showToast("Voter status updated");
+          renderAdminPortal();
+        });
+      });
+
+      document.querySelectorAll("[data-del-student]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.students = state.students.filter((x) => x.id !== btn.dataset.delStudent);
+          saveState();
+          showToast("Student removed");
+          renderAdminPortal();
+        });
+      });
+    }
+
+    document.getElementById("admin-student-search").addEventListener("input", renderAdminStudents);
+    document.getElementById("admin-student-status-filter").addEventListener("change", renderAdminStudents);
+
+    document.getElementById("open-add-student-btn").addEventListener("click", () => {
+      openModal(`
+        <h3 class="text-lg font-bold mb-4">Add Student Voter</h3>
+        <form id="add-student-admin-form" class="space-y-3">
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Student ID</label>
+            <input type="text" name="id" required placeholder="2026-2001" class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Full Name</label>
+            <input type="text" name="name" required placeholder="Alex Santos" class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Department</label>
+            <input type="text" name="department" required value="CICS" class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Course</label>
+            <input type="text" name="course" required value="BS Information Technology" class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Email</label>
+            <input type="email" name="email" required placeholder="alex@school.edu" class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Initial Password</label>
+            <input type="password" name="password" required value="Student_123" class="w-full select-control" />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="btn-purple-solid">Add Student</button>
+          </div>
+        </form>
+      `);
+
+      document.getElementById("add-student-admin-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        state.students.push({
+          id: fd.get("id").toString().trim(),
+          name: fd.get("name").toString().trim(),
+          gender: "Female",
+          department: fd.get("department").toString().trim(),
+          course: fd.get("course").toString().trim(),
+          yearSection: "1A",
+          contactNumber: "09170000000",
+          emergencyNumber: "09180000000",
+          birthDate: "2006-01-01",
+          address: "Campus City",
+          email: fd.get("email").toString().trim(),
+          password: fd.get("password").toString(),
+          voted: false,
+          receipt: null
+        });
+        saveState();
+        closeModal();
+        showToast("Student added");
+        renderAdminPortal();
+      });
+    });
+
+    function renderAdminResults() {
+      const totalVotes = state.candidates.reduce((s, c) => s + (c.votes || 0), 0);
+      document.getElementById("admin-results-total").textContent = totalVotes;
+
+      const positionResults = state.positions.map((pos) => {
+        const list = state.candidates.filter((c) => c.positionId === pos.id);
+        return `<div class="position-group">
+          <div class="position-group-header"><h3>${escapeHtml(pos.title)}</h3></div>
+          <div class="space-y-2">
+            ${list.map((c) => `
+              <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-purple-950/50 border border-purple-800/30">
+                <div>
+                  <strong class="text-sm">${escapeHtml(c.name)}</strong>
+                  <span class="text-xs text-purple-300 ml-2">${escapeHtml(c.party)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold">${c.votes || 0} votes</span>
+                  <button type="button" class="btn-glass-xs" data-adj-vote="${escapeHtml(c.id)}" data-delta="1">+1</button>
+                  <button type="button" class="btn-glass-xs" data-adj-vote="${escapeHtml(c.id)}" data-delta="-1">-1</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>`;
+      }).join("");
+
+      document.getElementById("admin-results-container").innerHTML = `
+        <div class="overall-result-card">
+          <div class="position-group-header">
+            <h3>Overall Voting Results</h3>
+            <span>${totalVotes} total votes</span>
+          </div>
+          <div class="overall-result-layout">${buildResultPie("all election results", state.candidates)}</div>
+        </div>
+        ${positionResults}
+      `;
+
+      document.querySelectorAll("[data-adj-vote]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cand = state.candidates.find((c) => c.id === btn.dataset.adjVote);
+          if (!cand) return;
+          cand.votes = Math.max(0, (cand.votes || 0) + Number(btn.dataset.delta));
+          saveState();
+          renderAdminPortal();
+        });
+      });
+    }
+
+    function openScheduleModal(schedId) {
+      const existing = schedId ? state.schedules.find((s) => s.id === schedId) : null;
+      openModal(`
+        <h3 class="text-lg font-bold mb-4">${existing ? "Edit Election Schedule" : "Add Election Schedule"}</h3>
+        <form id="sched-form" class="space-y-3">
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Election Title</label>
+            <input type="text" name="title" value="${escapeHtml(existing?.title || "Student Council Election 2026")}" required class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Closing Date &amp; Time</label>
+            <input type="datetime-local" name="deadline" value="${escapeHtml(existing?.deadline || "2026-11-30T23:59")}" required class="w-full select-control" />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="btn-purple-solid">Save Schedule</button>
+          </div>
+        </form>
+      `);
+
+      document.getElementById("sched-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = fd.get("title").toString().trim();
+        const deadline = fd.get("deadline").toString();
+        if (existing) {
+          existing.title = title;
+          existing.deadline = deadline;
+        } else {
+          state.schedules.push({ id: `sched-${Date.now()}`, title, deadline, status: "Open" });
+        }
+        saveState();
+        closeModal();
+        showToast("Schedule saved");
+        renderAdminPortal();
+      });
+    }
+
+    document.getElementById("admin-quick-schedule-btn").addEventListener("click", () => openScheduleModal(state.schedules[0]?.id || null));
+    document.getElementById("open-add-schedule-btn").addEventListener("click", () => openScheduleModal(null));
+
+    function renderAdminElections() {
+      document.getElementById("admin-schedules-list").innerHTML = state.schedules.map((s) => `
+        <div class="panel-card flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 class="m-0 font-bold">${escapeHtml(s.title)}</h4>
+            <p class="text-xs text-purple-300 m-0">Closes: ${escapeHtml(new Date(s.deadline).toLocaleString())}</p>
+          </div>
+          <button type="button" class="btn-pill-outline" data-edit-sched="${escapeHtml(s.id)}">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+        </div>
+      `).join("");
+
+      document.querySelectorAll("[data-edit-sched]").forEach((btn) => {
+        btn.addEventListener("click", () => openScheduleModal(btn.dataset.editSched));
+      });
+
+      const masterBtn = document.getElementById("toggle-master-poll-btn");
+      masterBtn.textContent = state.pollsOpen ? "Polls Are OPEN" : "Polls Are CLOSED";
+
+      document.getElementById("admin-rules-list").innerHTML = state.rules.map((rule, idx) => `
+        <li>
+          <span>${escapeHtml(rule)}</span>
+          <button type="button" class="btn-glass-xs text-rose-300" data-del-rule="${idx}">Remove</button>
+        </li>
+      `).join("");
+
+      document.querySelectorAll("[data-del-rule]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.rules.splice(Number(btn.dataset.delRule), 1);
+          saveState();
+          showToast("Rule removed");
+          renderAdminPortal();
+        });
+      });
+    }
+
+    document.getElementById("toggle-master-poll-btn").addEventListener("click", () => {
+      state.pollsOpen = !state.pollsOpen;
+      saveState();
+      showToast(state.pollsOpen ? "Polls opened for students" : "Polls closed");
+      renderAdminPortal();
+    });
+
+    document.getElementById("reset-election-data-btn").addEventListener("click", () => {
+      state.candidates.forEach((c) => { c.votes = 0; });
+      state.students.forEach((s) => { s.voted = false; s.receipt = null; });
+      saveState();
+      showToast("Election tallies and receipts reset");
+      renderAdminPortal();
+    });
+
+    document.getElementById("open-add-rule-btn").addEventListener("click", () => {
+      openModal(`
+        <h3 class="text-lg font-bold mb-4">Add Ballot Rule</h3>
+        <form id="add-rule-form" class="space-y-3">
+          <input type="text" name="ruleText" required placeholder="Enter security or voting rule..." class="w-full select-control" />
+          <div class="flex justify-end"><button type="submit" class="btn-purple-solid">Add Rule</button></div>
+        </form>
+      `);
+      document.getElementById("add-rule-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const txt = new FormData(e.target).get("ruleText").toString().trim();
+        if (txt) {
+          state.rules.push(txt);
+          saveState();
+          closeModal();
+          showToast("Rule added");
+          renderAdminPortal();
+        }
+      });
+    });
+
+    function renderAdminReports(totalVotes) {
+      const votedCount = state.students.filter((s) => s.voted).length;
+      document.getElementById("admin-reports-summary").innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div class="p-4 rounded-xl bg-purple-950/50 border border-purple-700/30">
+            <span class="text-xs text-purple-300 block">Registered Voters</span>
+            <strong class="text-xl">${state.students.length}</strong>
+          </div>
+          <div class="p-4 rounded-xl bg-purple-950/50 border border-purple-700/30">
+            <span class="text-xs text-purple-300 block">Students Who Voted</span>
+            <strong class="text-xl">${votedCount}</strong>
+          </div>
+          <div class="p-4 rounded-xl bg-purple-950/50 border border-purple-700/30">
+            <span class="text-xs text-purple-300 block">Total Candidate Votes</span>
+            <strong class="text-xl">${totalVotes}</strong>
+          </div>
+        </div>`;
+    }
+
+    function downloadFile(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("export-csv-btn").addEventListener("click", () => {
+      const rows = [["Position", "Candidate", "Party", "Votes"]];
+      state.candidates.forEach((c) => {
+        const pos = state.positions.find((p) => p.id === c.positionId)?.title || c.positionId;
+        rows.push([pos, c.name, c.party, String(c.votes || 0)]);
+      });
+      const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+      downloadFile("scces-election-report.csv", csv, "text/csv;charset=utf-8;");
+      showToast("CSV report downloaded");
+    });
+
+    document.getElementById("export-json-btn").addEventListener("click", () => {
+      const audit = { exportedAt: new Date().toISOString(), pollsOpen: state.pollsOpen, candidates: state.candidates, votedCount: state.students.filter((s) => s.voted).length };
+      downloadFile("scces-audit-log.json", JSON.stringify(audit, null, 2), "application/json");
+      showToast("JSON audit exported");
+    });
+
+    function renderAdminProfile() {
+      document.getElementById("admin-profile-container").innerHTML = `
+        <form id="admin-profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Administrator Name</label>
+            <input type="text" name="name" value="${escapeHtml(state.adminProfile.name)}" required class="w-full select-control" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Administrator Email</label>
+            <input type="email" value="${escapeHtml(ADMIN_CREDENTIALS.email)}" disabled class="w-full select-control opacity-75" />
+          </div>
+          <div>
+            <label class="block text-xs text-purple-300 mb-1">Office / Department</label>
+            <input type="text" name="department" value="${escapeHtml(state.adminProfile.department)}" required class="w-full select-control" />
+          </div>
+          <div class="md:col-span-2 flex justify-end">
+            <button type="submit" class="btn-purple-solid"><i class="fa-solid fa-floppy-disk"></i> Save Admin Profile</button>
+          </div>
+        </form>`;
+
+      document.getElementById("admin-profile-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        state.adminProfile.name = fd.get("name").toString().trim();
+        state.adminProfile.department = fd.get("department").toString().trim();
+        saveState();
+        showToast("Admin profile updated");
+        renderAdminPortal();
+      });
+    }
+
+    // LIVE COUNTDOWN TICKER
+    function updateCountdowns() {
+      const sched = state.schedules[0];
+      const target = sched?.deadline ? new Date(sched.deadline).getTime() : Date.now();
+      const diff = Math.max(0, target - Date.now());
+      const days = String(Math.floor(diff / 86400000)).padStart(2, "0");
+      const hours = String(Math.floor((diff / 3600000) % 24)).padStart(2, "0");
+      const mins = String(Math.floor((diff / 60000) % 60)).padStart(2, "0");
+      const secs = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
+
+      [["scd-", days, hours, mins, secs], ["acd-", days, hours, mins, secs]].forEach(([prefix, d, h, m, s]) => {
+        const dEl = document.getElementById(`${prefix}days`);
+        const hEl = document.getElementById(`${prefix}hours`);
+        const mEl = document.getElementById(`${prefix}mins`);
+        const sEl = document.getElementById(`${prefix}secs`);
+        if (dEl) dEl.textContent = d;
+        if (hEl) hEl.textContent = h;
+        if (mEl) mEl.textContent = m;
+        if (sEl) sEl.textContent = s;
+      });
+    }
+
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+    syncShellVisibility();
+  </script>
+</body>
+</html>
